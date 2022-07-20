@@ -1,0 +1,45 @@
+# Pubsub Topic
+apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
+kind: PubSubTopic
+metadata: # kpt-merge: my-namespace/pubsub-logexport-dataset
+  name: REPLACE_ME-ps-dataset # kpt-set: ${project-id}-ps-dataset
+  namespace: config-control # kpt-set: ${namespace}
+  annotations:
+    cnrm.cloud.google.com/blueprint: cnrm/landing-zone:log-export/v0.5.0,kpt-pkg-fn-live
+    cnrm.cloud.google.com/project-id: REPLACE_ME # kpt-set: ${project-id}
+    config.kubernetes.io/depends-on: resourcemanager.cnrm.cloud.google.com/namespaces/config-control/Project/REPLACE_ME # kpt-set: resourcemanager.cnrm.cloud.google.com/namespaces/config-control/Project/${project-id}
+spec:
+  name: REPLACE_ME-ps-dataset # kpt-set: ${project-id}-ps-dataset
+---
+apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+kind: Project
+metadata: # kpt-merge: projects/project-id
+  name: REPLACE_ME # kpt-set: ${project-id}
+  namespace: config-control
+  annotations:
+    cnrm.cloud.google.com/auto-create-network: "false"
+    cnrm.cloud.google.com/blueprint: cnrm/landing-zone:project/v0.4.3,kpt-pkg-fn-live
+spec:
+  name: REPLACE_ME # kpt-set: ${project-id}
+  billingAccountRef:
+    external: "REPLACE_ME" # kpt-set: ${billing-id}
+  folderRef:
+    external: "REPLACE_ME" # kpt-set: ${folder-id}
+---
+# Folder Sink to PubSub
+apiVersion: logging.cnrm.cloud.google.com/v1beta1
+kind: LoggingLogSink
+metadata: # kpt-merge: my-namespace/my.folder.k8s.name-pubsubsink
+  name: REPLACE_ME-pubsubsink # kpt-set: ${project-id}-pubsubsink
+  namespace: config-control
+  annotations:
+    cnrm.cloud.google.com/blueprint: 'kpt-fn-live'
+    config.kubernetes.io/depends-on: pubsub.cnrm.cloud.google.com/namespaces/config-control/PubSubTopic/REPLACE_ME-ps-dataset # kpt-set: pubsub.cnrm.cloud.google.com/namespaces/config-control/PubSubTopic/${project-id}-ps-dataset
+spec:
+  destination:
+    pubSubTopicRef:
+      name: REPLACE_ME-ps-dataset # kpt-set: ${project-id}-ps-dataset
+  filter: ""
+  folderRef:
+    external: "REPLACE_ME" # kpt-set: ${folder-id}
+  includeChildren: true
